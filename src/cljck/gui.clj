@@ -2,7 +2,7 @@
   (:import [java.awt AWTEvent Toolkit]
            [java.awt.event AWTEventListener])
   (:require [cljck.timing :refer [set-clicks-per-second!]]
-   [seesaw.core :as s]
+            [seesaw.core :as s]
             [seesaw.bind :as b]))
 
 (s/native!)
@@ -20,7 +20,8 @@
     (s/listen
      start
      :mouse-clicked (fn [_]
-                      (set-clicks-per-second! 5)))
+                      (set-clicks-per-second!
+                       (-> cps (s/config :model) (.getValue)))))
     (s/listen
      stop
      :mouse-clicked (fn [_]
