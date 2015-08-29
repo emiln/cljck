@@ -20,7 +20,7 @@
       (swap! click-state assoc :active true))
     (swap! click-state assoc :active false)))
 
-;; Keep adding tokens to the 'click bucket' when actively clicking.
+;; Keep adding click commands to the event queue while active.
 (go-loop []
   (when (:active @click-state)
     (>! event-channel [:click]))
