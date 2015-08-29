@@ -1,5 +1,5 @@
 (ns cljck.io
-  (:require [clojure.core.async :refer [<! chan go-loop]])
+  (:require [clojure.core.async :refer [<! <!! chan go-loop timeout]])
   (:import  [java.awt Robot]
             [java.awt.event InputEvent]))
 
@@ -43,6 +43,23 @@
 (defmethod process-event :move-to
   [[_ x y]]
   (move-to x y))
+
+(defmethod process-event :repeat
+  [[_ n & commands]]
+  (dotimes [_ n]
+    (doseq [command commands]
+      (process-event command))))
+
+(defmethod process-event :repeatedly
+  [[_ & commands]]
+  (go-loop []
+    (doseq [command commands]
+      (process-event command))
+    (recur)))
+
+(defmethod process-event :wait
+  [[_ miliseconds]]
+  (<!! (timeout miliseconds)))
 
 ;; Process events as they arrive on the event channel.
 (go-loop []
