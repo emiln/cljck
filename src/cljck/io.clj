@@ -1,5 +1,6 @@
 (ns cljck.io
-  (:require [clojure.core.async :refer [<! <!! chan go-loop timeout]])
+  (:require [clojure.core.async :refer [<! <!! chan go-loop timeout]]
+            [clojure.edn :as edn])
   (:import  [java.awt Robot]
             [java.awt.event InputEvent]))
 
@@ -13,16 +14,18 @@
   "You need a robot to do stuff with the mouse. This is that robot."
   (Robot.))
 
-(defn click [k]
+(defn click
   "Simulates a mouse click of the key denoted by the keyword k in the
   button-map. A click is really a press and a release in succession."
+  [k]
   (let [i (get button-map k InputEvent/BUTTON1_DOWN_MASK)]
     (doto robot
       (.mousePress i)
       (.mouseRelease i))))
 
-(defn move-to [x y]
+(defn move-to
   "Moves the mouse cursor to the absolute position [x y] on the screen."
+  [x y]
   (.mouseMove robot x y))
 
 (def event-channel (chan))
@@ -65,3 +68,10 @@
 (go-loop []
   (process-event (<! event-channel))
   (recur))
+
+(def
+  ^{:arglists '([file-name])}
+  process-file
+  "Takes a file name, reads the content of the file, parses it as EDN, and
+  attempts to process it as a Cljck command."
+  (comp process-event edn/read-string slurp))
