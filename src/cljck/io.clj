@@ -1,4 +1,5 @@
 (ns cljck.io
+  (:gen-class)
   (:require [clojure.core.async :refer [<! <!! chan go-loop timeout]]
             [clojure.edn :as edn])
   (:import  [java.awt Robot]
@@ -75,3 +76,7 @@
   "Takes a file name, reads the content of the file, parses it as EDN, and
   attempts to process it as a Cljck command."
   (comp process-event edn/read-string slurp))
+
+(defn -main
+  [file-name]
+  (process-file file-name))
