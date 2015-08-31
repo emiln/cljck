@@ -56,7 +56,7 @@
 
 (defmethod process-event :repeatedly
   [[_ & commands]]
-  (go-loop []
+  (loop []
     (doseq [command commands]
       (process-event command))
     (recur)))
