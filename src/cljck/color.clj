@@ -30,7 +30,7 @@
   [bucket total]
   (-> bucket
       (/ total)
-      (* 256)
+      (* 255)
       double
       (Math/round)
       int))
@@ -43,3 +43,12 @@
     (for [color (reduce update-rgb-buckets [zeros zeros zeros] pixels)]
       (for [bucket color]
         (normalize-bucket bucket total)))))
+
+(defn histogram-diff
+  [[red-a green-a blue-a] [red-b green-b blue-b]]
+  (letfn [(abs [a] (if (pos? a) a (- a)))
+          (diff [a b] (abs (- a b)))]
+    (let [diff-red   (reduce + (map diff   red-a   red-b))
+          diff-green (reduce + (map diff green-a green-b))
+          diff-blue  (reduce + (map diff  blue-a  blue-b))]
+      (/ (+ diff-red diff-green diff-blue) 255 3))))
