@@ -2,11 +2,12 @@
   (:gen-class)
   (:require
    [clojure.core.async :refer [<! <!! chan go-loop timeout]]
-   [clojure.edn :as edn])
+   [clojure.edn :as edn]
+   [clojure.string :refer [upper-case]])
   (:import
    [javax.imageio ImageIO]
    [java.awt Robot]
-   [java.awt.event InputEvent]
+   [java.awt.event KeyEvent InputEvent]
    [java.io File]
    [java.util.logging Level Logger]
    [org.jnativehook GlobalScreen]
@@ -19,6 +20,8 @@
 
 (GlobalScreen/addNativeKeyListener
  (proxy [NativeKeyListener] []
+   (nativeKeyTyped [event])
+   (nativeKeyReleased [event])
    (nativeKeyPressed [event]
      (when (= (.getKeyCode event) NativeKeyEvent/VC_ESCAPE)
        (System/exit 1337)))))
@@ -47,6 +50,28 @@
     (doto robot
       (.mousePress i)
       (.mouseRelease i))))
+
+(defn str->key
+  "Takes a string like 'A', 'B', 'ESCAPE', etc. and returns the corresponding
+  KeyEvent/VK_{string} constant."
+  [string]
+  (eval `(. KeyEvent ~(symbol (str "VK_" string)))))
+
+(defn press
+  "Simulates typing the given key. Note that the keyword should comprise a
+  single key to be inserted as the end of InputKey/VK_{keyword}. The full list
+  is available here:
+
+  http://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html
+
+  You can only use the keys beginning with VK_.
+
+  Examples: :5 :a :colon :f10"
+  [key-keyword]
+  (let [code (str->key (upper-case (name key-keyword)))]
+    (doto robot
+      (.keyPress code)
+      (.keyRelease code))))
 
 (defn move-to
   "Moves the mouse cursor to the absolute position [x y] on the screen."
@@ -84,6 +109,10 @@
     (doseq [command commands]
       (process-event command))
     (recur)))
+
+(defmethod process-event :type
+  [[_ key-keyword]]
+  (press key-keyword))
 
 (defmethod process-event :wait
   [[_ miliseconds]]
