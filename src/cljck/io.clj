@@ -5,6 +5,12 @@
   (:import  [java.awt Robot]
             [java.awt.event InputEvent]))
 
+(defn buffered-image
+  "Takes a path to an image file, which is assumed available on the class path,
+  and constructs and returns a BufferedImage from it."
+  [path]
+  (ImageIO/read (File. ^String path)))
+
 (def button-map
   "A mapping from Clojure keywords to more long-winded Java enums."
   {:left   InputEvent/BUTTON1_DOWN_MASK
