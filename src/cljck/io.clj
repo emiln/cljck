@@ -1,9 +1,27 @@
 (ns cljck.io
   (:gen-class)
-  (:require [clojure.core.async :refer [<! <!! chan go-loop timeout]]
-            [clojure.edn :as edn])
-  (:import  [java.awt Robot]
-            [java.awt.event InputEvent]))
+  (:require
+   [clojure.core.async :refer [<! <!! chan go-loop timeout]]
+   [clojure.edn :as edn])
+  (:import
+   [javax.imageio ImageIO]
+   [java.awt Robot]
+   [java.awt.event InputEvent]
+   [java.io File]
+   [java.util.logging Level Logger]
+   [org.jnativehook GlobalScreen]
+   [org.jnativehook.keyboard NativeKeyEvent NativeKeyListener]))
+
+(doto (Logger/getLogger "org.jnativehook")
+  (.setLevel Level/OFF))
+
+(GlobalScreen/registerNativeHook)
+
+(GlobalScreen/addNativeKeyListener
+ (proxy [NativeKeyListener] []
+   (nativeKeyPressed [event]
+     (when (= (.getKeyCode event) NativeKeyEvent/VC_ESCAPE)
+       (System/exit 1337)))))
 
 (defn buffered-image
   "Takes a path to an image file, which is assumed available on the class path,

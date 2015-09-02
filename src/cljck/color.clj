@@ -1,7 +1,5 @@
 (ns cljck.color
-  (:import [java.awt.image BufferedImage Raster]
-           [java.io File]
-           [javax.imageio ImageIO]))
+  (:import [java.awt.image BufferedImage Raster]))
 
 (defn image->pixels
   "Converts a BufferedImage into a flat sequence of pixels. A pixel is really
