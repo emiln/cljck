@@ -1,7 +1,7 @@
 (ns cljck.io.keyboard
   (:import [java.awt AWTKeyStroke]
            [java.awt.event InputEvent KeyEvent])
-  (:require [cljck.io :refer [robot]]))
+  (:require [cljck.io.sync :refer [robot]]))
 
 (def bitmask-map
   {(bit-or InputEvent/ALT_DOWN_MASK InputEvent/ALT_MASK)
