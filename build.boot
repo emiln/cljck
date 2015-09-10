@@ -11,8 +11,8 @@
   line."
   []
   (comp
-   (aot :namespace '#{cljck.io})
+   (aot :all true)
    (pom :project 'cljck
-        :version "0.3.0")
+        :version "0.3.1")
    (uber)
    (jar :main 'cljck.io)))
