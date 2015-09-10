@@ -71,6 +71,7 @@
      (nativeKeyReleased [event])
      (nativeKeyPressed [event]
        (when (= (.getKeyCode event) NativeKeyEvent/VC_ESCAPE)
+         (GlobalScreen/unregisterNativeHook)
          (System/exit 1337)))))
   
   (go-loop []
