@@ -4,7 +4,7 @@
    [cljck.io
     [keyboard :refer [press]]
     [mouse :refer [click move-to]]]
-   [clojure.core.async :refer [<! <!! chan go-loop timeout]]
+   [clojure.core.async :refer [<! <!! chan go go-loop timeout]]
    [clojure.edn :as edn])
   (:import
    [java.util.logging Level Logger]
@@ -59,7 +59,7 @@
   (comp process-event edn/read-string slurp))
 
 (defn -main
-  [file-name]
+  [& file-names]
   (doto (Logger/getLogger "org.jnativehook")
     (.setLevel Level/OFF))
   
@@ -78,4 +78,5 @@
     (process-event (<! event-channel))
     (recur))
 
-  (process-file file-name))
+  (doseq [file-name file-names]
+    (go (process-file file-name))))
