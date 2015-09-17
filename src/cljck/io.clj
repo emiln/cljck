@@ -3,7 +3,7 @@
   (:require
    [cljck.io
     [keyboard :refer [press]]
-    [mouse :refer [click move-to]]]
+    [mouse :refer [click move-to mouse-pointer]]]
    [clojure.core.async :refer [<! <!! chan go go-loop timeout]]
    [clojure.edn :as edn])
   (:import
@@ -26,9 +26,21 @@
   [_]
   (click :left))
 
+(defmethod process-event :if
+  [[_ condition then else]]
+  (if (process-event condition)
+    (process-event then)
+    (process-event else)))
+
 (defmethod process-event :move-to
   [[_ x y]]
   (move-to x y))
+
+(defmethod process-event :pointer-near
+  [[_ x y distance]]
+  (let [[mouse-x mouse-y] (mouse-pointer)]
+    (and (< (- x distance) mouse-x (+ x distance))
+         (< (- y distance) mouse-y (+ y distance)))))
 
 (defmethod process-event :press
   [[_ key-string]]
@@ -50,6 +62,11 @@
 (defmethod process-event :wait
   [[_ miliseconds]]
   (<!! (timeout miliseconds)))
+
+(defmethod process-event :when
+  [[_ condition & body]]
+  (when (process-event condition)
+    (apply process-event body)))
 
 (def
   ^{:arglists '([file-name])}
