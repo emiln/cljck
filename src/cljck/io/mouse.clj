@@ -1,6 +1,7 @@
 (ns cljck.io.mouse
   (:require [cljck.io.sync :refer [robot]])
-  (:import [java.awt.event InputEvent]))
+  (:import [java.awt MouseInfo Point PointerInfo]
+           [java.awt.event InputEvent]))
 
 (def button-map
   "A mapping from Clojure keywords to more long-winded Java enums."
@@ -21,3 +22,10 @@
   "Moves the mouse cursor to the absolute position [x y] on the screen."
   [x y]
   (.mouseMove robot x y))
+
+(defn mouse-pointer
+  "Returns the current absolute position of the mouse pointer."
+  []
+  (let [point (.. MouseInfo getPointerInfo getLocation)]
+    [(.x point)
+     (.y point)]))
