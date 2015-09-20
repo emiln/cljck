@@ -3,7 +3,7 @@
   (:require
    [cljck.io
     [keyboard :refer [press]]
-    [mouse :refer [click move-to mouse-pointer]]]
+    [mouse :refer [click move-to mouse-pointer scroll-down scroll-up]]]
    [clojure.core.async :refer [<! <!! chan go go-loop timeout]]
    [clojure.edn :as edn])
   (:import
@@ -58,6 +58,14 @@
     (doseq [command commands]
       (process-event command))
     (recur)))
+
+(defmethod process-event :scroll-down
+  [[_ & amount]]
+  (apply scroll-down amount))
+
+(defmethod process-event :scroll-up
+  [[_ & amount]]
+  (apply scroll-up amount))
 
 (defmethod process-event :wait
   [[_ miliseconds]]
