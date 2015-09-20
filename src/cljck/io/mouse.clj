@@ -9,6 +9,16 @@
    :middle InputEvent/BUTTON2_DOWN_MASK
    :right  InputEvent/BUTTON3_DOWN_MASK})
 
+(defn scroll-down
+  "Simulates scrolling the mouse wheel downwards."
+  ([] (scroll-down 1))
+  ([n] (.mouseWheel robot n)))
+
+(defn scroll-up
+  "Simulates scrolling the mouse wheel upwards."
+  ([] (scroll-up 1))
+  ([n] (.mouseWheel robot (- n))))
+
 (defn click
   "Simulates a mouse click of the key denoted by the keyword k in the
   button-map. A click is really a press and a release in succession."
