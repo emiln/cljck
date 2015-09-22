@@ -88,3 +88,38 @@ Keyword | Arguments | Description
 `:scroll-up` | `n` | Scrolls up n ticks of the mouse wheel. You can omit the argument, which will be interpreted as meaning 1 tick.
 `:wait` | `n` | Pauses execution of the script for roughly n miliseconds.
 `:when` | `condition` `expression+` | Evalutes the condition. If it is true, processes all expressions following the condition. If not, does nothing.
+
+### Example
+
+Here's an example using all the keywords, but not making much sense.
+
+```clojure
+[:repeatedly
+ [:if [:pointer-near 100 100 50]
+  [:move-to 500 500]
+  [:move-to 100 100]]
+ [:repeat 100
+  [:click]
+  [:scroll-down 5]]
+ [:when [:pointer-near 500 500 50]
+  [:scroll-up]]
+ [:wait 1000]]
+ ```
+ 
+ It reads as follows.
+ 
+Repeat the following indefinitely:
+
+  * Is the mouse cursor within 50 pixels of the point [100, 100]?
+  
+    Yes: Move it to [500, 500].
+    No: Move it to [100, 100].
+  
+  * Repeat 100 times:
+      * Click the left mouse button.
+      * Scroll down 5 ticks.
+  * Is the mouse cursor within 50 pixels of the point [500, 500]?
+  
+    Yes: Scroll up 1 tick.
+  
+  * Wait for 1000 miliseconds.
