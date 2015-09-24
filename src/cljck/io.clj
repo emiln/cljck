@@ -1,6 +1,7 @@
 (ns cljck.io
   (:gen-class)
   (:require
+   [cljck.utils :refer [multi-functions]]
    [cljck.io
     [keyboard :refer [press]]
     [mouse :refer [click move-to mouse-pointer scroll-down scroll-up]]]
@@ -22,15 +23,6 @@
   Dispatches on first."
   (comp name first))
 
-(defn valid-commands
-  []
-  (->> process-event
-       (.getMethodTable)
-       (map first)
-       (remove (partial = :default))
-       (sort)
-       (clojure.string/join ", ")))
-
 (defmethod process-event :default
   [exp]
   (throw (IllegalArgumentException.
@@ -38,7 +30,7 @@
             (println "The following expression wasn't recognized:")
             (clojure.pprint/pprint exp)
             (println "No such command:" (first exp))
-            (println "Valid commands:" (valid-commands))
+            (println "Valid commands:" (multi-functions process-event))
             (println "Check the API in the README for help.")))))
 
 (defmethod process-event "click"
