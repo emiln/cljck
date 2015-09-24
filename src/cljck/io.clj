@@ -22,6 +22,15 @@
   Dispatches on first."
   (comp name first))
 
+(defn valid-commands
+  []
+  (->> process-event
+       (.getMethodTable)
+       (map first)
+       (remove (partial = :default))
+       (sort)
+       (clojure.string/join ", ")))
+
 (defmethod process-event :default
   [exp]
   (throw (IllegalArgumentException.
@@ -29,6 +38,7 @@
             (println "The following expression wasn't recognized:")
             (clojure.pprint/pprint exp)
             (println "No such command:" (first exp))
+            (println "Valid commands:" (valid-commands))
             (println "Check the API in the README for help.")))))
 
 (defmethod process-event "click"
