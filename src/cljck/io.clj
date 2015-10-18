@@ -1,8 +1,11 @@
 (ns cljck.io
   (:gen-class)
   (:require
-   [cljck.utils :refer [multi-functions]]
+   [cljck
+    [color :refer [hex->histogram histogram histogram-diff]]
+    [utils :refer [multi-functions]]]
    [cljck.io
+    [images :refer [fetch-screen]]
     [keyboard :refer [press]]
     [mouse :refer [click move-to mouse-pointer scroll-down scroll-up]]]
    [clojure.core.async :refer [<! <!! chan go go-loop timeout]]
@@ -36,6 +39,18 @@
 (defmethod process-event "click"
   [_]
   (click :left))
+
+(defmethod process-event "histogram"
+  [[_ hex-code]]
+  (hex->histogram hex-code))
+
+(defmethod process-event "histogram-at"
+  [[_ x y width height]]
+  (histogram (fetch-screen x y width height)))
+
+(defmethod process-event "histogram-diff"
+  [[_ hist1 hist2 max-diff]]
+  (<= (histogram-diff (process-event hist1) (process-event hist2)) max-diff))
 
 (defmethod process-event "if"
   [[_ condition then else]]

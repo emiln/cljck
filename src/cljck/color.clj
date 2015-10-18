@@ -1,5 +1,7 @@
 (ns cljck.color
-  (:import [java.awt.image BufferedImage Raster]))
+  (:require [cljck.io.sync :refer [robot]])
+  (:import [java.awt Rectangle]
+           [java.awt.image BufferedImage Raster]))
 
 (defn image->pixels
   "Converts a BufferedImage into a flat sequence of pixels. A pixel is really
@@ -36,9 +38,7 @@
   The result would increment the buckets as follows:
   [[0 0 0 0 0 0 0 1] [0 0 0 1 0 0 0 0] [1 0 0 0 0 0 0 0]]"
   [[reds greens blues] [red green blue]]
-  [(update-buckets reds   red)
-   (update-buckets greens green)
-   (update-buckets blues  blue)])
+  (map update-buckets [reds greens blues] [red green blue]))
 
 (defn normalize-bucket
   "Takes a bucket count, divides it by the total number of pixels and multiplies
@@ -51,6 +51,27 @@
       double
       (Math/round)
       int))
+
+(defn hex->histogram
+  "Converts a string into a color histogram. The string is expected to conform
+  to the following format:
+
+  [rrrrrrrrrrrrrrrrggggggggggggggggbbbbbbbbbbbbbbbb]
+
+  where each section r, g, and b is divided into
+
+  [[hh] [hh] [hh] [hh] [hh] [hh] [hh] [hh]]
+
+  each h being a hexadecimal value. The output is a vector with 3 elements
+  (one for each color), each element is itself a vector with 8 elements
+  (dividing the color into 8 'buckets' from low to high RGB values). Each bucket
+  will have a value in the inclusive range [0 255]."
+  [hex-string]
+  (sequence
+   (comp (map (partial partition 2))
+         (map (partial map (partial apply str)))
+         (map (partial map #(Long/parseLong % 16))))
+   (partition 16 hex-string)))
 
 (defn histogram
   "Constructs a histogram of a given BufferedImage, which is a measure of where
@@ -75,4 +96,4 @@
     (let [diff-red   (reduce + (map diff   red-a   red-b))
           diff-green (reduce + (map diff green-a green-b))
           diff-blue  (reduce + (map diff  blue-a  blue-b))]
-      (/ (+ diff-red diff-green diff-blue) 255 3))))
+      (/ (+ diff-red diff-green diff-blue) 255 3 2))))
