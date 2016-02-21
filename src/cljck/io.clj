@@ -1,4 +1,5 @@
 (ns cljck.io
+  (:gen-class)
   (:require
    [cljck.io
     [keyboard :refer [press release]]
