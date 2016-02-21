@@ -26,12 +26,18 @@
     (keys bitmask-map))
    (map (partial get bitmask-map))))
 
-(defn press
+(defn key-string->key-seq
   [key-string]
   (let [[key-code mod-mask] (str->key-stroke key-string)
-        mod-seq (vec (bitmask->key-events mod-mask))
-        key-seq (conj mod-seq key-code)]
-    (doseq [k key-seq]
-      (.keyPress robot k))
-    (doseq [k (reverse key-seq)]
-      (.keyRelease robot k))))
+        mod-seq (vec (bitmask->key-events mod-mask))]
+    (conj mod-seq key-code)))
+
+(defn press
+  [key-string]
+  (doseq [k (key-string->key-seq key-string)]
+    (.keyPress robot k)))
+
+(defn release
+  [key-string]
+  (doseq [k (reverse (key-string->key-seq key-string))]
+    (.keyRelease robot k)))

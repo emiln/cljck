@@ -1,10 +1,9 @@
 (ns cljck.io
-  (:gen-class)
   (:require
-   [cljck.utils :refer [multi-functions]]
    [cljck.io
-    [keyboard :refer [press]]
+    [keyboard :refer [press release]]
     [mouse :refer [click move-to mouse-pointer scroll-down scroll-up]]]
+   [cljck.utils :refer [multi-functions]]
    [clojure.core.async :refer [<! <!! chan go go-loop timeout]]
    [clojure.edn :as edn])
   (:import
@@ -19,8 +18,8 @@
   open-ended shapes as Cljck is extended, this is a multi method free to be
   supplied with additional implementations.
 
-  The argument is expected to be a vector like [:move-to 100 100] or [:click].
-  Dispatches on first."
+  The argument is expected to be a seq where the first element is either a
+  keyword or a symbol. Examples include: [:click] (move-to 100 100)."
   (comp name first))
 
 (defmethod process-event :default
@@ -36,6 +35,12 @@
 (defmethod process-event "click"
   [_]
   (click :left))
+
+(defmethod process-event "holding"
+  [[_ key-string & body]]
+  (press key-string)
+  (apply process-event body)
+  (release key-string))
 
 (defmethod process-event "if"
   [[_ condition then else]]
@@ -55,7 +60,8 @@
 
 (defmethod process-event "press"
   [[_ key-string]]
-  (press key-string))
+  (press key-string)
+  (release key-string))
 
 (defmethod process-event "repeat"
   [[_ n & commands]]
@@ -98,9 +104,9 @@
   [& file-names]
   (doto (Logger/getLogger "org.jnativehook")
     (.setLevel Level/OFF))
-  
+
   (GlobalScreen/registerNativeHook)
-  
+
   (GlobalScreen/addNativeKeyListener
    (proxy [NativeKeyListener] []
      (nativeKeyTyped [event])
@@ -109,7 +115,7 @@
        (when (= (.getKeyCode event) NativeKeyEvent/VC_ESCAPE)
          (GlobalScreen/unregisterNativeHook)
          (System/exit 1337)))))
-  
+
   (go-loop []
     (process-event (<! event-channel))
     (recur))
